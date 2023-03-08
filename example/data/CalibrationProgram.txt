@@ -1,0 +1,26 @@
+def Program():
+  Gripper_ToolTcp = p[0, 0, 0.215, 1.2092, -1.2092, 1.2092]
+  Gripper_ToolWeight = 3
+  Gripper_ToolCog = [0, 0, 0.215]
+  Speed000 = 0.3
+  DefaultZone = 0
+  set_tcp(Gripper_ToolTcp)
+  set_payload(Gripper_ToolWeight, Gripper_ToolCog)
+  movej([0.7854, -1.5708, 1.5708, -1.5708, -1.5708, 0], a=3.1416, v=0.9425, r=DefaultZone)
+  movej([0.7854, -1.5708, 1.5708, -1.5708, -1.5708, 0], a=3.1416, v=0.9425, r=DefaultZone)
+  movej(p[-0.39519, -0.58844, 0.40151, 0.31787, 0.18698, -0.44064], a=3.1416, v=3.1416, r=DefaultZone)
+  popup("wait", "Message", False, False, blocking=True)
+  movej(p[-0.14785, -0.41891, 0.38533, -0.36223, 0.57417, -0.93348], a=3.1416, v=0.9472, r=DefaultZone)
+  popup("wait", "Message", False, False, blocking=True)
+  movej(p[-0.25874, -0.48768, 0.37889, -0.16039, 0.46175, -1.13626], a=3.1416, v=1.1285, r=DefaultZone)
+  popup("wait", "Message", False, False, blocking=True)
+  movej(p[-0.60833, -0.65801, 0.48761, 0.43852, -0.26247, -0.22866], a=3.1416, v=1.3768, r=DefaultZone)
+  popup("wait", "Message", False, False, blocking=True)
+  movej(p[-0.62454, -0.37344, 0.43904, 0.1065, -0.43102, -1.1839], a=3.1416, v=1.2074, r=DefaultZone)
+  popup("wait", "Message", False, False, blocking=True)
+  movej(p[-0.34155, -0.39185, 0.57851, -0.16154, 0.11655, -0.96289], a=3.1416, v=0.5254, r=DefaultZone)
+  popup("wait", "Message", False, False, blocking=True)
+  movej(p[-0.46396, -0.81078, 0.34389, 0.82145, 0.05773, -0.24477], a=3.1416, v=0.6761, r=DefaultZone)
+  popup("wait", "Message", False, False, blocking=True)
+  movej([0.7854, -1.5708, 1.5708, -1.5708, -1.5708, 0], a=3.1416, v=1.7559, r=DefaultZone)
+end

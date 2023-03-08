@@ -1,0 +1,4 @@
+manufacturer: ABB
+length_unit: MILLIMETER
+rotation_system: QUATERNION
+move_command_regex: MoveJ \[\[(-?\d*[.]?\d+),(-?\d*[.]?\d*),(-?\d*[.]?\d*)\],\[(-?\d*[.]?\d*),(-?\d*[.]?\d*),(-?\d*[.]?\d*),(-?\d*[.]?\d*)\],.*?;
