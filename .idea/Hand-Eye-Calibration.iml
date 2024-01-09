@@ -11,7 +11,7 @@
   <component name="PyNamespacePackagesService">
     <option name="namespacePackageFolders">
       <list>
-        <option value="$MODULE_DIR$/src/ui" />
+        <option value="$MODULE_DIR$/src/hec_gui" />
       </list>
     </option>
   </component>

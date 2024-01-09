@@ -5,9 +5,9 @@ import eel
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-from eye_in_hand.image_processing import detector as det
-from eye_in_hand.robot_model import robot_model as rob
-from eye_in_hand import hand_eye_calibrator as hec, configs
+from hand_eye_calibration.image_processing import detector as det
+from hand_eye_calibration.robot_model import robot_model as rob
+from hand_eye_calibration import hand_eye_calibrator as hec, configs
 
 detector: det = det.Detector(configs.CONFIG_DIR / "charuco_board.json", verbose=False)
 robot: rob = rob.RobotModel(manufacturer='UR')

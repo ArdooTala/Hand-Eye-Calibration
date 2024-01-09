@@ -1,5 +1,5 @@
 import eel
-from ui import VUE_APP_DIR
+from hec_gui import VUE_APP_DIR
 
 
 def main():
