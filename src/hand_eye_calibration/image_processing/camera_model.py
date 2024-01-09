@@ -4,7 +4,7 @@ import json
 import pathlib
 import numpy as np
 
-from eye_in_hand import logger
+from hand_eye_calibration import logger
 
 
 class CameraModel:

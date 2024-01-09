@@ -2,8 +2,8 @@ import json
 from pathlib import Path
 import cv2
 import numpy as np
-from eye_in_hand import logger
-from eye_in_hand.image_processing.camera_model import CameraModel
+from hand_eye_calibration import logger
+from hand_eye_calibration.image_processing.camera_model import CameraModel
 
 
 class Detector:

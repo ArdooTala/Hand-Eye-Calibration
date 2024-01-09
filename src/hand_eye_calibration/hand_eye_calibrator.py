@@ -1,7 +1,7 @@
 import json
 import pathlib
 from datetime import datetime
-from eye_in_hand import logger
+from hand_eye_calibration import logger
 import cv2 as cv
 import numpy as np
 from scipy.spatial.transform import Rotation
@@ -83,7 +83,7 @@ class HandEyeCalibrator:
         return r_cam2gripper, t_cam2gripper
 
     def write_hand_eye_transform(self, save_path=None):
-        from src.eye_in_hand._encoder import NumpyEncoder
+        from hand_eye_calibration._encoder import NumpyEncoder
 
         if not save_path:
             save_path = pathlib.Path.cwd()

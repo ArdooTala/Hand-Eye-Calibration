@@ -19,12 +19,6 @@ dependencies = [
     "pyyaml",
 ]
 
-[project.optional-dependencies]
-gui = ["eel",]
-
 [tool.setuptools.packages.find]
 where = ["src"]
-exclude = ["ui"]
-
-[project.scripts]
-HECalibration = "ui.__main__:main"
+include = ["hand_eye_calibration"]

@@ -1,7 +1,7 @@
-from eye_in_hand.configs import CONFIG_DIR
-from eye_in_hand.image_processing import detector
-from eye_in_hand.robot_model import robot_model
-from eye_in_hand import hand_eye_calibrator
+from hand_eye_calibration.configs import CONFIG_DIR
+from hand_eye_calibration.image_processing import detector
+from hand_eye_calibration.robot_model import robot_model
+from hand_eye_calibration import hand_eye_calibrator
 
 det = detector.Detector(CONFIG_DIR / "charuco_board.json", verbose=False)
 det.load_images("data/images", extension="png")

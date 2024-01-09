@@ -1,7 +1,7 @@
 import re
 import yaml
 import numpy as np
-from eye_in_hand.configs import CONFIG_DIR
+from hand_eye_calibration.configs import CONFIG_DIR
 
 
 def try_detect_robot_manufacturer(prg_lines):
