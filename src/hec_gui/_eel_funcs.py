@@ -5,11 +5,11 @@ import eel
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-from hand_eye_calibration.image_processing import detector as det
+from hand_eye_calibration.image_processing import charucodetector as det
 from hand_eye_calibration.robot_model import robot_model as rob
 from hand_eye_calibration import hand_eye_calibrator as hec, configs
 
-detector: det = det.Detector(configs.CONFIG_DIR / "charuco_board.json", verbose=False)
+detector: det = det.CharucoDetector(configs.CONFIG_DIR / "charuco_board.json", verbose=False)
 robot: rob = rob.RobotModel(manufacturer='UR')
 hecalib: hec = hec.HandEyeCalibrator(detector, robot)
 
@@ -54,10 +54,10 @@ def parse_robot_program(prg_file):
 
     poses = []
     for i, pose in enumerate(robot.robot_poses):
-        pose_rot = (Rotation.from_rotvec(np.array(pose[3:], dtype=np.float32)).as_quat(False))
+        pose_rot = (Rotation.from_matrix(np.array(pose[0], dtype=np.float32)).as_quat(False))
         print(pose)
         poses.append(
-            (i, pose_rot.flatten().tolist(), pose[:3].flatten().tolist())
+            (i, pose_rot.flatten().tolist(), pose[1].flatten().tolist())
         )
 
     return poses
@@ -104,7 +104,7 @@ def detect_cam_poses():
 @eel.expose
 def auto_detect_camera():
     global detector
-    detector.auto_generate_camera()
+    detector.auto_detect_camera_parameters()
 
     return (
         detector.camera.camera_matrix.flatten().tolist(),
@@ -122,4 +122,4 @@ def get_images_list():
 @eel.expose
 def reset_detector():
     global detector
-    detector = det.Detector(configs.CONFIG_DIR / "charuco_board.json", verbose=True)
+    detector = det.CharucoDetector(configs.CONFIG_DIR / "charuco_board.json", verbose=True)

@@ -6,8 +6,8 @@ from hand_eye_calibration import logger
 from hand_eye_calibration.image_processing.camera_model import CameraModel
 
 
-class Detector:
-    def __init__(self, charuco_parameters_file, verbose=False):
+class CharucoDetector:
+    def __init__(self, charuco_parameters, verbose=False):
         self.verbose = verbose
         self._image_files = None
         self._images_dir = None
@@ -15,9 +15,19 @@ class Detector:
         self.board = None
         self._aruco_dict = None
 
-        with open(charuco_parameters_file) as charuco_params_json:
-            charuco_params = json.load(charuco_params_json)
-        self._load_charuco_board(charuco_params)
+        if not isinstance(charuco_parameters, dict):
+            try:
+                charuco_parameters_file = Path(charuco_parameters)
+                logger.info(f"Reading CharucoBoard parameters from file: {charuco_parameters_file}")
+                with open(charuco_parameters_file) as charuco_params_json:
+                    charuco_parameters = json.load(charuco_params_json)
+            except TypeError:
+                raise Exception("charuco_parameters could not be interpreted as a dict or a path to a json file")
+
+        if not charuco_parameters:
+            raise Exception("charuco_parameters could not be interpreted as a path to a json file or a dictionary.")
+
+        self._load_charuco_board(charuco_parameters)
 
     def _load_charuco_board(self, charuco_params):
         dict_name = charuco_params["markers_dictionary"]
@@ -169,6 +179,6 @@ class Detector:
 
         return p_rvec, p_tvec
 
-    def auto_generate_camera(self):
+    def auto_detect_camera_parameters(self):
         self.camera = CameraModel()
         self.camera.auto_detect_camera_from_images(self)

@@ -6,7 +6,7 @@ py -m pip install .
 
 #### Install with GUI
 ```shell
-python -m pip install .[src]
+python -m pip install .[gui]
 ```
 
 ### GUI

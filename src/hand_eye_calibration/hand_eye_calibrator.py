@@ -36,26 +36,17 @@ class HandEyeCalibrator:
             logger.info(f"IMG: {img_name}")
             logger.info(f"ROB: {rob_pose}")
             logger.info(f"CAM: {cam_pose}")
-            # print("-" * 100)
-            # print("=" * 200)
 
-            if len(rob_pose) == 7:
-                logger.debug("Converting Quaternions to Rotation Matrix")
-                rob_pose_rot = Rotation.from_quat(rob_pose[3:]).as_matrix()
-            elif len(rob_pose) == 6:
-                logger.debug("Converting Axis-Angle to Rotation Matrix")
-                rob_pose_rot = Rotation.from_rotvec(rob_pose[3:]).as_matrix()
-            else:
-                logger.warning("Rotation format not recognized!")
+            if not rob_pose:
                 continue
 
-            logger.debug(f"rob_rot: {rob_pose_rot}")
+            if not cam_pose:
+                continue
 
             self.calibration_model["r_target2cam"].append(cam_pose[0])
             self.calibration_model["t_target2cam"].append(cam_pose[1])
-            self.calibration_model["r_gripper2base"].append(rob_pose_rot)
-            self.calibration_model["t_gripper2base"].append(rob_pose[:3])
-            # print("___")
+            self.calibration_model["r_gripper2base"].append(rob_pose[0])
+            self.calibration_model["t_gripper2base"].append(rob_pose[1])
 
         logger.info(f"r_target2cam   : {len(self.calibration_model['r_target2cam'])} rotation entries created.")
         logger.info(f"t_target2cam   : {len(self.calibration_model['t_target2cam'])} translation entries created.")
@@ -88,7 +79,7 @@ class HandEyeCalibrator:
         if not save_path:
             save_path = pathlib.Path.cwd()
 
-        output_file = save_path / f"HandEyeCalibration_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        output_file = save_path / f"{datetime.now().strftime('%Y%m%d_%H%M%S')}-HandEyeCalibration.json"
         with open(output_file, 'w') as f:
             json.dump({"rvec": self.r_cam2gripper, "tvec": self.t_cam2gripper}, f, indent=2, cls=NumpyEncoder)
 

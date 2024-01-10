@@ -1,0 +1,4 @@
+manufacturer: UR
+length_unit: METER
+rotation_system: ROTATION VECTOR
+move_command_regex: movej\(p\[(-?\d*[.]?\d+), (-?\d*[.]?\d+), (-?\d*[.]?\d+), (-?\d*[.]?\d+), (-?\d*[.]?\d+), (-?\d*[.]?\d+)\], a=\d*[.]?\d+, v=\d*[.]?\d+, r=.+\)

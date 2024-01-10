@@ -1,7 +1,10 @@
 import re
+from pathlib import Path
 import yaml
 import numpy as np
-from hand_eye_calibration.configs import CONFIG_DIR
+from scipy.spatial.transform import Rotation
+
+from hand_eye_calibration import logger
 
 
 def try_detect_robot_manufacturer(prg_lines):
@@ -18,15 +21,15 @@ class RobotModel:
             if not manufacturer:
                 raise ValueError("Robot model not defined, please provide the manufacturer or the specs file.")
 
-            specs_file = CONFIG_DIR / f"{manufacturer}.yaml"
+            specs_file = Path(__file__).absolute().parent / "model_data" / f"{manufacturer}.yaml"
 
         with open(specs_file) as f:
             specs = yaml.safe_load(f)
 
         self._manufacturer = specs.get('manufacturer', 'Generic')
-        self._dis_unit = specs.get('length_unit', 'mm')
         self._rot_system = specs.get('rotation_system')
         self._cmd_template = specs.get('move_command_regex')
+        self._dist_scale = 1.0 if specs.get('length_unit', 'METER') == 'METER' else 0.001
         self._robot_poses = []
 
     @property
@@ -36,16 +39,29 @@ class RobotModel:
     @property
     def robot_poses(self):
         for pose in self._robot_poses:
-            yield np.array(pose, dtype=np.float32)
+            yield self._convert_pose(pose)
 
     def parse_robot_program(self, program_file):
-        print("=" * 150)
         moves_j = re.compile(self._cmd_template)
         with open(program_file, 'r') as file:
             prog = file.read()
-            self._robot_poses = moves_j.findall(prog)
-        print(f"{len(self._robot_poses)} MoveJ lines found.")
+        file_poses = moves_j.findall(prog)
+        self._robot_poses = [np.array(p, dtype=np.float32) for p in file_poses]
+        logger.info(f"{len(self._robot_poses)} MoveJ lines found.")
 
-    def _convert_to_meters(self, pt):
-        scale = 1 if self._dis_unit == 'mm' else 0.001
-        return np.array(pt) * scale
+    def _convert_pose(self, rob_pose):
+        if len(rob_pose) == 7:
+            logger.debug("Converting Quaternions to Rotation Matrix")
+            rob_pose_rot = Rotation.from_quat(rob_pose[3:]).as_matrix()
+        elif len(rob_pose) == 6:
+            logger.debug("Converting Axis-Angle to Rotation Matrix")
+            rob_pose_rot = Rotation.from_rotvec(rob_pose[3:]).as_matrix()
+        else:
+            logger.warning("Rotation format not recognized!")
+            return None
+
+        rob_pose_pos = rob_pose[:3] * self._dist_scale
+
+        logger.debug(f"rob_pose [r, t]:\n{rob_pose_rot}\n{rob_pose_pos}")
+
+        return rob_pose_rot, rob_pose_pos

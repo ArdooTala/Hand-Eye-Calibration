@@ -84,7 +84,7 @@ class CameraModel:
         if not save_path:
             save_path = pathlib.Path.cwd()
 
-        output_file = save_path / f"CameraCalibration_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        output_file = save_path / f"{datetime.now().strftime('%Y%m%d_%H%M%S')}-CameraCalibration.json"
         with open(output_file, 'w') as file:
             json.dump(calibration_result, file, indent=2)
 

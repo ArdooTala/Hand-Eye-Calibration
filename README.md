@@ -1,5 +1,5 @@
 # Hand-Eye Calibration
-A simple GUI for easy Hand-Eye Calibration using OpenCV. Currently supports UR and ABB robots.
+A simple package for easy Hand-Eye Calibration using OpenCV. Currently, supports UR and ABB robots.
 
 ---
 
@@ -38,7 +38,7 @@ python -m pip install .
 ## Quick Start Guide
 ### CLI
 ```sh
-python -m hand_eye_calibration ./images RobotProgram.txt --rob=UR
+# python -m hand_eye_calibration ./images RobotProgram.txt --rob=UR
 ```
 
 ### API Example
