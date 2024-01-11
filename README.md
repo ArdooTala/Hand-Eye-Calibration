@@ -37,7 +37,7 @@ cd Hand-Eye-Calibration
 
 # Recommended: make and activate a virtual env:
 python -m venv .venv
-./venv/Scripts/activate.bash
+./venv/Scripts/activate
 
 # Install the Library and the dependencies
 pip install .
