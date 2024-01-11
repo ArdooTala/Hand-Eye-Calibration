@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hand_eye_calibration_gui"
+version = "0.0.1"
+authors = [
+    {name = "Ardeshir Talaei", email = "ardeshir.talaei@gmail.com"},
+]
+description = "A simple GUI for calculating the hand-eye calibration using OpenCV."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = [
+    "opencv-contrib-python",
+    "numpy",
+    "scipy",
+    "pyyaml",
+    "eel",
+]
+
+#[tool.setuptools.packages.find]
+#where = ["*"]
+#include = ["hand_eye_calibration"]
