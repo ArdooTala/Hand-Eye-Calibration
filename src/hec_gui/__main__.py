@@ -1,5 +1,6 @@
 import eel
 from hec_gui import VUE_APP_DIR
+from hec_gui import _eel_funcs
 
 
 def main():
