@@ -97,16 +97,14 @@ rotation_system: QUATERNION
 move_command_regex: MoveJ \[\[(-?\d*[.]?\d+),(-?\d*[.]?\d*),(-?\d*[.]?\d*)\],\[(-?\d*[.]?\d*),(-?\d*[.]?\d*),(-?\d*[.]?\d*),(-?\d*[.]?\d*)\],.*?;
 ```
 
-#### Charuco Board (JSON)
+#### Charuco Board (YAML)
 
-```json
-{
-  "num_X": 9,
-  "num_Y": 6,
-  "len_squares": 0.04,
-  "len_markers": 0.035,
-  "markers_dictionary": 2
-}
+```yaml
+num_X: 9
+num_Y: 6
+len_squares: 0.04
+len_markers: 0.035
+markers_dictionary: 2
 ```
 
 ---

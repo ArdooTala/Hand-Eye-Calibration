@@ -1,10 +1,10 @@
-from hand_eye_calibration.image_processing import charucodetector
+from hand_eye_calibration.image_processing import charuco_detector
 from hand_eye_calibration.robot_model import robot_model
 from hand_eye_calibration.hand_eye_calibrator import HandEyeCalibrator
 
 
 # Detect CharucoBoards
-det = charucodetector.CharucoDetector("data/charuco_board.json", verbose=False)
+det = charuco_detector.CharucoDetector("data/charuco_board.yaml", verbose=False)
 det.load_images("data/images", extension="png")
 det.auto_detect_camera_parameters()
 det.camera.write_camera_calibration()   # Write the Camera Calibration Result

@@ -1,4 +1,4 @@
-import json
+import yaml
 from pathlib import Path
 import cv2
 import numpy as np
@@ -19,22 +19,26 @@ class CharucoDetector:
             try:
                 charuco_parameters_file = Path(charuco_parameters)
                 logger.info(f"Reading CharucoBoard parameters from file: {charuco_parameters_file}")
-                with open(charuco_parameters_file) as charuco_params_json:
-                    charuco_parameters = json.load(charuco_params_json)
+                with open(charuco_parameters_file) as charuco_params_yaml:
+                    charuco_parameters = yaml.safe_load(charuco_params_yaml)
             except TypeError:
-                raise Exception("charuco_parameters could not be interpreted as a dict or a path to a json file")
+                raise Exception("charuco_parameters could not be interpreted as a dict or a path to a yaml file")
 
         if not charuco_parameters:
-            raise Exception("charuco_parameters could not be interpreted as a path to a json file or a dictionary.")
+            raise Exception("charuco_parameters not found")
 
         self._load_charuco_board(charuco_parameters)
 
     def _load_charuco_board(self, charuco_params):
+        assert all(x in charuco_params for x in [
+            "num_X", "num_Y",
+            "len_squares", "len_markers",
+            "markers_dictionary"
+        ]), "CharucoBoard dict does not include all the required keys"
+
         dict_name = charuco_params["markers_dictionary"]
+        logger.debug(f"Using ARUCO dictionary: [{dict_name}]")
 
-        logger.info(f"Using ARUCO dictionary: [{dict_name}]")
-
-        # aruco_dict = cv2.aruco.getPredefinedDictionary(getattr(cv2.aruco, dict_name))
         aruco_dict = cv2.aruco.getPredefinedDictionary(dict_name)
         board = cv2.aruco.CharucoBoard(
             (charuco_params["num_X"], charuco_params["num_Y"]),
