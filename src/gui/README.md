@@ -1,35 +1,48 @@
-> To use the GUI version, install the package with `gui` flag.
-> ```shell
-> # Install the Library and the dependencies including GUI deps
-> python -m pip install .
-> ```
+# Hand-Eye Calibration
 
+A simple GUI for easy Hand-Eye Calibration using OpenCV.
 
-> To use the GUI version, install the package with `gui` flag.
-> ```shell
-> # Install the Library and the dependencies including GUI deps
-> py -m pip install .
-> ```
+---
 
+## Installation
 
-#### Install the GUI (OPTIONAL)
+The `Hand_Eye_Calibration` package needs to be installed first. You can install it
+from [here](https://github.com/ArdooTala/Hand-Eye-Calibration).
 
-```shell
-cd src
+### Windows
+
+To install the GUI, from the root of the repository:
+
+```powershell
+cd .\src\gui\
 py -m pip install .
 ```
 
-#### Install with GUI
+### Unix
+
+To install the GUI, from the root of the repository:
 
 ```shell
-python -m pip install .[gui]
+cd src/gui/
+pip install .
 ```
+
+---
+
+## Quick Start Guide
 
 ### GUI
 
-Starting the GUI
+Execute the following command from commandline (with the virtual env activated, if it applies):
 
-```sh
-cd src
+```shell
+HECal
+```
+
+Or alternatively, directly execute the `hec_gui` package to run the GUI app.
+
+```shell
 python -m hec_gui
 ```
+
+---

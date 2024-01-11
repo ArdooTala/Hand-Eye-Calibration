@@ -8,24 +8,25 @@ A simple package for easy Hand-Eye Calibration using OpenCV. Currently, supports
 
 ### Windows
 
-```
+```powershell
 # Clone from GitHub:
 git clone https://github.com/ArdooTala/Hand-Eye-Calibration.git
 cd .\Hand-Eye-Calibration\
 
 # Recommended: make and activate a virtual env
-py -m venv venv
+py -m venv .venv
 .\venv\Scripts\activate
 
 # Install the Library and the dependencies
 py -m pip install .
 ```
 
-> To use the GUI version, install the package with `gui` flag.
-> ```shell
-> # Install the Library and the dependencies including GUI deps
-> py -m pip install .
-> ```
+Optionally, to install the GUI:
+
+```powershell
+cd .\src\gui\
+py -m pip install .
+```
 
 ### Unix
 
@@ -35,18 +36,19 @@ git clone https://github.com/ArdooTala/Hand-Eye-Calibration.git
 cd Hand-Eye-Calibration
 
 # Recommended: make and activate a virtual env:
-python -m venv venv
+python -m venv .venv
 ./venv/Scripts/activate.bash
 
 # Install the Library and the dependencies
-python -m pip install .
+pip install .
 ```
 
-> To use the GUI version, install the package with `gui` flag.
-> ```shell
-> # Install the Library and the dependencies including GUI deps
-> python -m pip install .
-> ```
+Optionally, to install the GUI:
+
+```shell
+cd src/gui/
+pip install .
+```
 
 ---
 
@@ -54,10 +56,15 @@ python -m pip install .
 
 ### GUI
 
-Execute the `hec_gui` package to run the GUI app.
+Execute the following command from commandline (with the virtual env activated, if it applies):
 
 ```shell
-cd src
+HECal
+```
+
+Or alternatively, directly execute the `hec_gui` package to run the GUI app.
+
+```shell
 python -m hec_gui
 ```
 
@@ -79,6 +86,8 @@ options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         Path to write the calibration result
+  -b BOARD, --board BOARD
+                        Path to charucoboard yaml file
   -f EXTENSION, --extension EXTENSION
                         images format
   -r {UR,ABB,KUKA}, --robot {UR,ABB,KUKA}
