@@ -23,3 +23,9 @@ dependencies = [
 #[tool.setuptools.packages.find]
 #where = ["*"]
 #include = ["hand_eye_calibration"]
+
+[project.scripts]
+HECal = "hec_gui.__main__:main"
+
+[tool.setuptools.package-data]
+"hec_gui.vueapp.HandEyeCalibration.dist" = ["**/*.*"]

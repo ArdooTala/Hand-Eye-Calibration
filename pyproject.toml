@@ -21,4 +21,7 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["hand_eye_calibration"]
+namespaces = false
+
+[tool.setuptools.package-data]
+"hand_eye_calibration" = ["**/*.*"]
