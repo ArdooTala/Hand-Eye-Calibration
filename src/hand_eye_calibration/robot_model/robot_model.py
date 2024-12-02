@@ -28,8 +28,17 @@ class RobotModel:
 
         self._manufacturer = specs.get('manufacturer', 'Generic')
         self._rot_system = specs.get('rotation_system')
+        self._set_convert_rotation()
         self._cmd_template = specs.get('move_command_regex')
-        self._dist_scale = 1.0 if specs.get('length_unit', 'METER') == 'METER' else 0.001
+
+        match specs.get('length_unit').upper():
+            case "METER":
+                self._dist_scale = 1.0
+            case "MILLIMETER":
+                self._dist_scale = 0.001
+            case _:
+                raise ValueError("Distance Unit not recognized")
+
         self._robot_poses = []
 
     @property
@@ -41,6 +50,10 @@ class RobotModel:
         for pose in self._robot_poses:
             yield self._convert_pose(pose)
 
+    @robot_poses.setter
+    def robot_poses(self, poses):
+        self._robot_poses = poses
+
     def parse_robot_program(self, program_file):
         moves_j = re.compile(self._cmd_template)
         with open(program_file, 'r') as file:
@@ -49,19 +62,24 @@ class RobotModel:
         self._robot_poses = [np.array(p, dtype=np.float32) for p in file_poses]
         logger.info(f"{len(self._robot_poses)} MoveJ lines found.")
 
+    def _set_convert_rotation(self):
+        match self._rot_system:
+            case "TAIT–BRYAN ANGLES":
+                self.rotation_to_matrix = lambda angles: Rotation.from_euler('ZYX', angles, degrees=True).as_matrix()
+            case "QUATERNION":
+                self.rotation_to_matrix = lambda angles: Rotation.from_quat(angles).as_matrix()
+            case "ROTATION VECTOR":
+                self.rotation_to_matrix = lambda angles: Rotation.from_rotvec(angles).as_matrix()
+            case _:
+                self.rotation_to_matrix = None
+
     def _convert_pose(self, rob_pose):
-        if len(rob_pose) == 7:
-            logger.debug("Converting Quaternions to Rotation Matrix")
-            rob_pose_rot = Rotation.from_quat(rob_pose[3:]).as_matrix()
-        elif len(rob_pose) == 6:
-            logger.debug("Converting Axis-Angle to Rotation Matrix")
-            rob_pose_rot = Rotation.from_rotvec(rob_pose[3:]).as_matrix()
-        else:
-            logger.warning("Rotation format not recognized!")
-            return None
+        if not self.rotation_to_matrix:
+            logger.error("rotation_to_matrix not defined")
+            raise ValueError("rotation_to_matrix not defined")
 
+        rob_pose_rot = self.rotation_to_matrix(rob_pose[3:])
         rob_pose_pos = rob_pose[:3] * self._dist_scale
-
         logger.debug(f"rob_pose [r, t]:\n{rob_pose_rot}\n{rob_pose_pos}")
 
         return rob_pose_rot, rob_pose_pos
