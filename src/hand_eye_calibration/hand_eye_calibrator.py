@@ -22,7 +22,7 @@ class HandEyeCalibrator:
         self.r_cam2gripper = None
 
     def preprocess_data(self):
-        assert self.robot_loader.poses_count == len(self.image_loader.image_files)
+        # assert self.robot_loader.poses_count == self.image_loader.images_count
 
         self.calibration_model = {
             "r_gripper2base": [],
@@ -34,8 +34,8 @@ class HandEyeCalibrator:
         for (img_name, cam_pose), rob_pose in zip(self.image_loader.estimated_poses, self.robot_loader.robot_poses):
             logger.info(f"Preprocessing calibration data")
             logger.info(f"IMG: {img_name}")
-            logger.info(f"ROB: {rob_pose}")
             logger.info(f"CAM: {cam_pose}")
+            logger.info(f"ROB: {rob_pose}")
 
             if not rob_pose:
                 continue

@@ -71,7 +71,7 @@ def make_detector(images_dir):
         return
 
     print(f"Getting images from: {images_dir}")
-    detector.load_images(images_dir, extension="png")
+    detector.load_images_from_files(images_dir, extension="png")
     for file, img in detector.images:
         print(file)
         cv2.imshow("Image", img)

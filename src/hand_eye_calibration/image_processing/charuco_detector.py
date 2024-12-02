@@ -4,13 +4,13 @@ import cv2
 import numpy as np
 from hand_eye_calibration import logger
 from hand_eye_calibration.image_processing.camera_model import CameraModel
+from hand_eye_calibration.image_processing.image_loader import ImageLoader
 
 
-class CharucoDetector:
+class CharucoDetector(ImageLoader):
     def __init__(self, charuco_parameters, verbose=False):
+        super().__init__(verbose)
         self.verbose = verbose
-        self._image_files = None
-        self._images_dir = None
         self.camera = None
         self.board = None
         self._aruco_dict = None
@@ -55,25 +55,6 @@ class CharucoDetector:
         self._aruco_dict = aruco_dict
 
         return board, aruco_dict
-
-    def load_images(self, imgs_dir, extension='jpg'):
-        self._images_dir = Path(imgs_dir)
-        self._image_files = sorted(self._images_dir.glob(f"*.{extension}"))
-
-    @property
-    def image_files(self):
-        return self._image_files
-
-    @property
-    def images(self):
-        for img_file in self._image_files:
-            img = None
-            try:
-                img = cv2.imread(str(img_file))
-            except Exception as e:
-                logger.warning(f"Could not read the image: {img_file}")
-                logger.error(e)
-            yield img_file, img
 
     @property
     def detected_markers(self):

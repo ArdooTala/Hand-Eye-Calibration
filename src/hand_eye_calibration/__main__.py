@@ -43,7 +43,7 @@ else:
 
 # Detect CharucoBoards
 det = charuco_detector.CharucoDetector(brd, verbose=args.verbose)
-det.load_images(img, extension=args.extension)
+det.load_images_from_files(img, extension=args.extension)
 det.auto_detect_camera_parameters()
 det.camera.write_camera_calibration(out)  # Write the Camera Calibration Result
 
