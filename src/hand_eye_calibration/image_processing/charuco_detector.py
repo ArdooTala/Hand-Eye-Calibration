@@ -78,14 +78,14 @@ class CharucoDetector:
     @property
     def detected_markers(self):
         for file, img in self.images:
-            detected = self.get_detected_marker(img)
+            detected = self._detect_marker(img)
             if self.verbose and not detected:
                 logger.warning("Not able to detect a charuco board in image: {}".format(file))
             yield file, detected
 
         # return (self.get_detected_marker(img) for file, img in self.images if img is not None)
 
-    def get_detected_marker(self, img):
+    def _detect_marker(self, img):
         if img is None:
             return None
 
@@ -119,9 +119,9 @@ class CharucoDetector:
             raise Exception("Camera not defined!")
 
         for file, img in self.images:
-            yield file, self.get_estimated_pose(img, self.camera.camera_matrix, self.camera.dist_coeff)
+            yield file, self._estimate_pose(img, self.camera.camera_matrix, self.camera.dist_coeff)
 
-    def get_estimated_pose(self, image, camera_matrix, dist_coeff):
+    def _estimate_pose(self, image, camera_matrix, dist_coeff):
         if image is None:
             return None
 
