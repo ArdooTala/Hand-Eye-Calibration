@@ -72,9 +72,6 @@ class CharucoDetector(ImageLoader):
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         corners, ids, _ = cv2.aruco.detectMarkers(gray, self._aruco_dict)
-
-        img = cv2.aruco.drawDetectedMarkers(img, corners)
-
         response, charuco_corners, charuco_ids = cv2.aruco.interpolateCornersCharuco(
             markerCorners=corners,
             markerIds=ids,
@@ -86,10 +83,11 @@ class CharucoDetector(ImageLoader):
             logger.warning(f"Not able to detect enough markers in the image ({response}/10)")
             return None
 
-        img = cv2.aruco.drawDetectedCornersCharuco(img, charuco_corners, charuco_ids)
-
         if self.verbose:
-            cv2.imshow('Charuco board', img)
+            out = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+            out = cv2.aruco.drawDetectedMarkers(out, corners)
+            out = cv2.aruco.drawDetectedCornersCharuco(out, charuco_corners, charuco_ids)
+            cv2.imshow('Charuco board', out)
             cv2.waitKey(0)
 
         return charuco_corners, charuco_ids
@@ -114,21 +112,9 @@ class CharucoDetector(ImageLoader):
         if len(corners) != len(ids) or len(corners) == 0:
             return None
 
-        output = None
-        if self.verbose:
-            output = cv2.aruco.drawDetectedMarkers(image, corners)  # , ids)
-
         try:
             ret, c_corners, c_ids = cv2.aruco.interpolateCornersCharuco(corners, ids, frame, self.board)
-
-            if self.verbose:
-                output = cv2.aruco.drawDetectedCornersCharuco(output, c_corners)  # , c_ids)
-
-            if ret < 10:
-                if self.verbose:
-                    cv2.imshow("Kir", cv2.resize(output, None, fx=0.5, fy=0.5))
-                    cv2.waitKey(0)
-                return None
+            assert ret > 9
 
             rvec = (0, 0, 0)
             tvec = (0, 0, 0)
@@ -141,26 +127,23 @@ class CharucoDetector(ImageLoader):
                 logger.info('Distance from cameras:\t{0} m'.format(np.linalg.norm(p_tvec)))
 
             if p_rvec is None or p_tvec is None:
-                if self.verbose:
-                    cv2.imshow("Kir", cv2.resize(output, None, fx=0.5, fy=0.5))
-                    cv2.waitKey(0)
                 return None
             if np.isnan(p_rvec).any() or np.isnan(p_tvec).any():
-                if self.verbose:
-                    cv2.imshow("Kir", cv2.resize(output, None, fx=0.5, fy=0.5))
-                    cv2.waitKey(0)
                 return None
-
-            if self.verbose:
-                output = cv2.drawFrameAxes(output, camera_matrix, dist_coeff, p_rvec, p_tvec, 0.1)
 
         except cv2.error as e:
             logger.error(e)
             return None
 
         if self.verbose:
-            cv2.imshow("Kir", cv2.resize(output, None, fx=0.5, fy=0.5))
-            cv2.waitKey(1)
+            output = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+            try:
+                output = cv2.aruco.drawDetectedMarkers(output, corners)  # , ids)
+                output = cv2.aruco.drawDetectedCornersCharuco(output, c_corners)  # , c_ids)
+                output = cv2.drawFrameAxes(output, camera_matrix, dist_coeff, p_rvec, p_tvec, 0.1)
+            finally:
+                cv2.imshow("Kir", cv2.resize(output, None, fx=1, fy=1))
+                cv2.waitKey(0)
 
         return p_rvec, p_tvec
 
