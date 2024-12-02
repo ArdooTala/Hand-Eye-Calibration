@@ -1,0 +1,4 @@
+manufacturer: KUKA
+length_unit: MILLIMETER
+rotation_system: TAIT–BRYAN ANGLES
+move_command_regex: S?(?:PTP|LIN|SPL)\w+\{X (-?\d*[.]?\d+),\w+Y (-?\d*[.]?\d+),\w+Z (-?\d*[.]?\d+),\w+A (-?\d*[.]?\d+),\w+B (-?\d*[.]?\d+),\w+C (-?\d*[.]?\d+).*\}.*
