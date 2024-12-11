@@ -15,8 +15,6 @@ det = charuco_detector.CharucoDetector("data/charuco_board.yaml", verbose=True)
 images = map(cv2.imread, Path("data/images").glob("*.png"))
 det.load_images(enumerate(images))
 
-# print(len(det.images))
-# print(len(det.images))
 det.auto_detect_camera_parameters()
 det.camera.write_camera_calibration()   # Write the Camera Calibration Result
 

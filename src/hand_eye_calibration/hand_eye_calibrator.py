@@ -69,6 +69,7 @@ class HandEyeCalibrator:
         print("#" * 150)
         print(f"Rotation Matrix:\n{self.r_cam2gripper}")
         print(f"Rotation Vector:\n{Rotation.from_matrix(self.r_cam2gripper).as_rotvec()}")
+        print(f"Euler Angles:\n{Rotation.from_matrix(self.r_cam2gripper).as_euler("ZYX", degrees=True)}")
         print(f"Translation Vector:\n{self.t_cam2gripper}")
 
         return r_cam2gripper, t_cam2gripper
