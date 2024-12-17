@@ -7,7 +7,7 @@ from hand_eye_calibration.hand_eye_calibrator import HandEyeCalibrator
 
 
 # Detect CharucoBoards
-det = charuco_detector.CharucoDetector("data/charuco_board.yaml", verbose=True)
+det = charuco_detector.CharucoDetector("data/charuco_board.yaml", verbose=False)
 
 # Alt 1
 # det.load_images_from_files("data/images", extension="png")
@@ -27,3 +27,5 @@ hecalib = HandEyeCalibrator(det, robot)
 hecalib.preprocess_data()
 rvec, tvec = hecalib.calibrate_hand_eye()
 hecalib.write_hand_eye_transform()      # Write the Hand-Eye Calibration Result
+
+print(hecalib.get_hand_eye_coordinates(rot_format="TAIT–BRYAN ANGLES"))

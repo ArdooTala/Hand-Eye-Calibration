@@ -85,3 +85,15 @@ class HandEyeCalibrator:
             json.dump({"rvec": self.r_cam2gripper, "tvec": self.t_cam2gripper}, f, indent=2, cls=NumpyEncoder)
 
         return output_file
+
+    def get_hand_eye_coordinates(self, rot_format=None):
+        match rot_format:
+            case "TAIT–BRYAN ANGLES":
+                r_cam = Rotation.from_matrix(self.r_cam2gripper).as_euler('ZYX', degrees=True)
+            case "QUATERNION":
+                r_cam = Rotation.from_matrix(self.r_cam2gripper).as_quat()
+            case "ROTATION VECTOR":
+                r_cam = Rotation.from_matrix(self.r_cam2gripper).as_rotvec()
+            case _:
+                r_cam = self.r_cam2gripper
+        return r_cam, self.t_cam2gripper
