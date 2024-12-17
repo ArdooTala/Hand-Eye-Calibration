@@ -54,17 +54,17 @@ class RobotModel:
         self._robot_poses = poses
 
     def rotation_to_matrix(self, angles):
-        if not angles:
+        angles = np.asarray(angles)
+        if angles is None:
             raise ValueError
 
-        angles = np.asarray(angles)
         return angles
 
     def matrix_to_rotation(self, rot_matrix):
-        if not rot_matrix:
+        rot_matrix = np.asarray(rot_matrix)
+        if rot_matrix is None:
             raise ValueError
 
-        rot_matrix = np.asarray(rot_matrix)
         assert rot_matrix.shape == (3, 3)
         return rot_matrix
 
