@@ -28,7 +28,6 @@ class RobotModel:
 
         self._manufacturer = specs.get('manufacturer', 'Generic')
         self._rot_system = specs.get('rotation_system')
-        self._set_convert_rotation()
         self._cmd_template = specs.get('move_command_regex')
 
         match specs.get('length_unit').upper():
@@ -53,6 +52,21 @@ class RobotModel:
     @robot_poses.setter
     def robot_poses(self, poses):
         self._robot_poses = poses
+
+    def rotation_to_matrix(self, angles):
+        if not angles:
+            raise ValueError
+
+        angles = np.asarray(angles)
+        return angles
+
+    def matrix_to_rotation(self, rot_matrix):
+        if not rot_matrix:
+            raise ValueError
+
+        rot_matrix = np.asarray(rot_matrix)
+        assert rot_matrix.shape == (3, 3)
+        return rot_matrix
 
     def parse_robot_program(self, program_file):
         moves_j = re.compile(self._cmd_template)

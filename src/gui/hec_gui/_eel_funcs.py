@@ -6,7 +6,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 from hand_eye_calibration.image_processing import charuco_detector as det
-from hand_eye_calibration.robot_model import robot_model as rob
+from hand_eye_calibration.robot_model import base_robot_model as rob
 from hand_eye_calibration import hand_eye_calibrator as hec, configs
 
 detector: det = det.CharucoDetector(configs.CONFIG_DIR / "charuco_board.yaml", verbose=False)

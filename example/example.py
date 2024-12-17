@@ -2,7 +2,7 @@ import cv2
 from pathlib import Path
 
 from hand_eye_calibration.image_processing import charuco_detector
-from hand_eye_calibration.robot_model import robot_model
+from hand_eye_calibration.robot_model import base_robot_model, kuka_robot
 from hand_eye_calibration.hand_eye_calibrator import HandEyeCalibrator
 
 
@@ -19,7 +19,8 @@ det.auto_detect_camera_parameters()
 det.camera.write_camera_calibration()   # Write the Camera Calibration Result
 
 # Extract Robot Poses
-robot = robot_model.RobotModel(manufacturer='UR')
+# robot = kuka_robot.KukaRobot()
+robot = base_robot_model.RobotModel(manufacturer='UR')
 robot.parse_robot_program("data/CalibrationProgram.txt")
 
 # Calculate the Hand-Eye Calibration

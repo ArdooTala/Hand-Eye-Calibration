@@ -3,7 +3,7 @@ from pathlib import Path
 
 from hand_eye_calibration import CONFIGS_PATH
 from hand_eye_calibration.image_processing import charuco_detector
-from hand_eye_calibration.robot_model import robot_model
+from hand_eye_calibration.robot_model import base_robot_model
 from hand_eye_calibration.hand_eye_calibrator import HandEyeCalibrator
 
 parser = argparse.ArgumentParser()
