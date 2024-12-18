@@ -54,6 +54,6 @@ class RobotModel:
         if not self.rotation_to_matrix:
             raise ValueError("rotation_to_matrix not defined")
         rob_pose_rot = self.rotation_to_matrix(rob_pose[3:])
-        rob_pose_pos = rob_pose[:3] * self._dist_scale
+        rob_pose_pos = rob_pose[:3].reshape(-1, 1) * self._dist_scale
         logger.debug(f"rob_pose [r, t]:\n{rob_pose_rot}\n{rob_pose_pos}")
         return rob_pose_rot, rob_pose_pos
