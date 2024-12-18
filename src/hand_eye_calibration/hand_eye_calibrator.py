@@ -13,52 +13,21 @@ class HandEyeCalibrator:
     def __init__(self, image_loader, robot_loader):
         self.image_loader = image_loader
         self.robot_loader = robot_loader
+        self.calibration_data = None
 
-        self._calibration_model = {
-            "r_gripper2base": [],
-            "t_gripper2base": [],
-            "r_target2cam": [],
-            "t_target2cam": []
-        }
+        self.load_calibration_data(image_loader, robot_loader)
         self.t_cam2gripper = None
         self.r_cam2gripper = None
 
-    def _validate_data(self, img_name, cam_pose, rob_pose):
-        logger.debug(f"IMG: {img_name}")
-        logger.debug(f"CAM: {cam_pose}")
-        logger.debug(f"ROB: {rob_pose}")
+    def load_calibration_data(self, image_poses, robot_poses):
+        assert len(robot_poses) == image_poses.images_count
 
-        if not rob_pose:
-            logger.warning(f"Robot pose does not exist")
-            return None
-
-        if not cam_pose:
-            logger.warning(f"Camera pose does not exist")
-            return None
-
-        rob_pose_r = cv2.Rodrigues(rob_pose[0])[0]
-        return np.array((rob_pose_r, rob_pose[1], cam_pose[0], cam_pose[1]))
-
-    def preprocess_data(self):
-        self._calibration_model = {
-            "r_gripper2base": [],
-            "t_gripper2base": [],
-            "r_target2cam": [],
-            "t_target2cam": []
-        }
-
-        for (img_name, cam_pose), rob_pose in zip(self.image_loader.estimated_poses, self.robot_loader):
-            logger.debug(f"IMG: {img_name}")
+        cal_data = []
+        for (img_id, cam_pose), rob_pose in zip(image_poses.estimated_poses, robot_poses):
+            logger.info(f"IMG: {img_id}")
             logger.debug(f"CAM: {cam_pose}")
             logger.debug(f"ROB: {rob_pose}")
 
-            print(self._validate_data(img_name, cam_pose, rob_pose).shape)
-
-            logger.info(cam_pose[0].shape)
-            logger.info(cam_pose[1].shape)
-            logger.info(rob_pose[0].shape)
-            logger.info(rob_pose[1].shape)
-            logger.info(cv2.Rodrigues(rob_pose[0]))
             if not rob_pose:
                 logger.warning(f"Robot pose does not exist")
                 continue
@@ -67,25 +36,16 @@ class HandEyeCalibrator:
                 logger.warning(f"Camera pose does not exist")
                 continue
 
-            self._calibration_model["r_target2cam"].append(cam_pose[0])
-            self._calibration_model["t_target2cam"].append(cam_pose[1])
-            self._calibration_model["r_gripper2base"].append(rob_pose[0])
-            self._calibration_model["t_gripper2base"].append(rob_pose[1])
+            cal_data.append(np.array((cv2.Rodrigues(rob_pose[0])[0], rob_pose[1], cam_pose[0], cam_pose[1])))
 
-        logger.info(f"r_target2cam   : {len(self._calibration_model['r_target2cam'])} rotation entries created.")
-        logger.info(f"t_target2cam   : {len(self._calibration_model['t_target2cam'])} translation entries created.")
-        logger.info(f"r_gripper2base : {len(self._calibration_model['r_gripper2base'])} rotation entries created.")
-        logger.info(f"t_gripper2base : {len(self._calibration_model['t_gripper2base'])} translation entries created.")
+        self.calibration_data = np.stack(cal_data, axis=1)
 
     def calibrate_hand_eye(self):
-        logger.info(f"Calibrating on {len(list(self._calibration_model.values())[0])} images . . .")
-        self.r_cam2gripper, self.t_cam2gripper = cv2.calibrateHandEye(
-            np.array(self._calibration_model["r_gripper2base"]),
-            np.array(self._calibration_model["t_gripper2base"]),
-            np.array(self._calibration_model["r_target2cam"]),
-            np.array(self._calibration_model["t_target2cam"]),
-            cv2.CALIB_HAND_EYE_DANIILIDIS  # cv.CALIB_HAND_EYE_TSAI
-        )
+        logger.info(f"Calibrating on {self.calibration_data.shape[1]} images . . .")
+        print(self.calibration_data.shape)
+        self.r_cam2gripper, self.t_cam2gripper = cv2.calibrateHandEye(*self.calibration_data,
+                                                                      cv2.CALIB_HAND_EYE_DANIILIDIS)
+        # self.r_cam2gripper, self.t_cam2gripper = cv2.calibrateHandEye(*data, cv.CALIB_HAND_EYE_TSAI)
 
         logger.info("#" * 150)
         logger.info(f"Rotation Matrix:\n{self.r_cam2gripper}")
