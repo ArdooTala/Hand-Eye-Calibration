@@ -5,6 +5,7 @@ class AbbRobot(base_robot_model.RobotModel):
     def __init__(self):
         super().__init__("ABB")
         self._dist_scale = 0.001
+        self._cmd_template = "MoveJ \[\[(-?\d*[.]?\d+),(-?\d*[.]?\d*),(-?\d*[.]?\d*)\],\[(-?\d*[.]?\d*),(-?\d*[.]?\d*),(-?\d*[.]?\d*),(-?\d*[.]?\d*)\],.*?;"
 
     def rotation_to_matrix(self, angles):
         angles = super().rotation_to_matrix(angles)

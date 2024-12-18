@@ -5,6 +5,7 @@ class URRobot(base_robot_model.RobotModel):
     def __init__(self):
         super().__init__("UR")
         self._dist_scale = 1
+        self._cmd_template = "movej\(p\[(-?\d*[.]?\d+), (-?\d*[.]?\d+), (-?\d*[.]?\d+), (-?\d*[.]?\d+), (-?\d*[.]?\d+), (-?\d*[.]?\d+)\], a=\d*[.]?\d+, v=\d*[.]?\d+, r=.+\)"
 
     def rotation_to_matrix(self, angles):
         angles = super().rotation_to_matrix(angles)

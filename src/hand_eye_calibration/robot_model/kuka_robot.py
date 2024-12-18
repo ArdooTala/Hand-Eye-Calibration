@@ -5,6 +5,7 @@ class KukaRobot(base_robot_model.RobotModel):
     def __init__(self):
         super().__init__("KUKA")
         self._dist_scale = 0.001
+        self._cmd_template = "S?(?:PTP|LIN|SPL)\w+\{X (-?\d*[.]?\d+),\w+Y (-?\d*[.]?\d+),\w+Z (-?\d*[.]?\d+),\w+A (-?\d*[.]?\d+),\w+B (-?\d*[.]?\d+),\w+C (-?\d*[.]?\d+).*\}.*"
 
     def rotation_to_matrix(self, angles):
         angles = super().rotation_to_matrix(angles)
