@@ -6,6 +6,8 @@ import cv2 as cv
 import numpy as np
 from scipy.spatial.transform import Rotation
 
+from hand_eye_calibration.robot_model.base_robot_model import RobotModel
+
 
 class HandEyeCalibrator:
     def __init__(self, image_loader, robot_loader):
@@ -86,14 +88,10 @@ class HandEyeCalibrator:
 
         return output_file
 
-    def get_hand_eye_coordinates(self, rot_format=None):
-        match rot_format:
-            case "TAIT–BRYAN ANGLES":
-                r_cam = Rotation.from_matrix(self.r_cam2gripper).as_euler('ZYX', degrees=True)
-            case "QUATERNION":
-                r_cam = Rotation.from_matrix(self.r_cam2gripper).as_quat()
-            case "ROTATION VECTOR":
-                r_cam = Rotation.from_matrix(self.r_cam2gripper).as_rotvec()
-            case _:
-                r_cam = self.r_cam2gripper
-        return r_cam, self.t_cam2gripper
+    def get_hand_eye_coordinates(self, as_matrix=False):
+        if as_matrix:
+            return self.r_cam2gripper, self.t_cam2gripper
+
+        if isinstance(self.robot_loader, RobotModel):
+            r_cam = self.robot_loader.matrix_to_rotation(self.r_cam2gripper)
+            return r_cam, self.t_cam2gripper

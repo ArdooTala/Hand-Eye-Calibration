@@ -29,4 +29,4 @@ hecalib.preprocess_data()
 rvec, tvec = hecalib.calibrate_hand_eye()
 hecalib.write_hand_eye_transform()      # Write the Hand-Eye Calibration Result
 
-print(hecalib.get_hand_eye_coordinates(rot_format="TAIT–BRYAN ANGLES"))
+print(hecalib.get_hand_eye_coordinates())
