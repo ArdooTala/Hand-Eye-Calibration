@@ -2,8 +2,8 @@ from hand_eye_calibration.robot_model import base_robot_model
 from scipy.spatial.transform import Rotation
 
 class URRobot(base_robot_model.RobotModel):
-    def __init__(self):
-        super().__init__("UR")
+    def __init__(self, poses=None):
+        super().__init__(poses)
         self._dist_scale = 1
         self._cmd_template = "movej\(p\[(-?\d*[.]?\d+), (-?\d*[.]?\d+), (-?\d*[.]?\d+), (-?\d*[.]?\d+), (-?\d*[.]?\d+), (-?\d*[.]?\d+)\], a=\d*[.]?\d+, v=\d*[.]?\d+, r=.+\)"
 

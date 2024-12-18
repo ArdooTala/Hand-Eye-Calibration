@@ -2,8 +2,8 @@ from hand_eye_calibration.robot_model import base_robot_model
 from scipy.spatial.transform import Rotation
 
 class KukaRobot(base_robot_model.RobotModel):
-    def __init__(self):
-        super().__init__("KUKA")
+    def __init__(self, poses=None):
+        super().__init__(poses)
         self._dist_scale = 0.001
         self._cmd_template = "S?(?:PTP|LIN|SPL)\w+\{X (-?\d*[.]?\d+),\w+Y (-?\d*[.]?\d+),\w+Z (-?\d*[.]?\d+),\w+A (-?\d*[.]?\d+),\w+B (-?\d*[.]?\d+),\w+C (-?\d*[.]?\d+).*\}.*"
 

@@ -19,9 +19,9 @@ det.auto_detect_camera_parameters()
 det.camera.write_camera_calibration()   # Write the Camera Calibration Result
 
 # Extract Robot Poses
-robot = ur_robot.URRobot()
-# robot = base_robot_model.RobotModel(manufacturer='UR')
-robot.parse_robot_program("data/CalibrationProgram.txt")
+with open("data/CalibrationProgram.txt", 'r') as f:
+    program = f.read()
+    robot = ur_robot.URRobot.from_robot_program(program)
 
 # Calculate the Hand-Eye Calibration
 hecalib = HandEyeCalibrator(det, robot)

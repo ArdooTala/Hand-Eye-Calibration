@@ -2,8 +2,8 @@ from hand_eye_calibration.robot_model import base_robot_model
 from scipy.spatial.transform import Rotation
 
 class AbbRobot(base_robot_model.RobotModel):
-    def __init__(self):
-        super().__init__("ABB")
+    def __init__(self, poses=None):
+        super().__init__(poses)
         self._dist_scale = 0.001
         self._cmd_template = "MoveJ \[\[(-?\d*[.]?\d+),(-?\d*[.]?\d*),(-?\d*[.]?\d*)\],\[(-?\d*[.]?\d*),(-?\d*[.]?\d*),(-?\d*[.]?\d*),(-?\d*[.]?\d*)\],.*?;"
 

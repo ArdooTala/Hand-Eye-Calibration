@@ -31,7 +31,7 @@ class HandEyeCalibrator:
             "t_target2cam": []
         }
 
-        for (img_name, cam_pose), rob_pose in zip(self.image_loader.estimated_poses, self.robot_loader.robot_poses):
+        for (img_name, cam_pose), rob_pose in zip(self.image_loader.estimated_poses, self.robot_loader):
             logger.info(f"Preprocessing calibration data")
             logger.info(f"IMG: {img_name}")
             logger.info(f"CAM: {cam_pose}")
