@@ -1,17 +1,22 @@
+import logging
 from datetime import datetime
 import cv2
 import json
 import pathlib
 import numpy as np
 
-from hand_eye_calibration import logger
+# from hand_eye_calibration import logger
 
+logger = logging.getLogger(__name__)
 
 class CameraModel:
-    def __init__(self):
+    def __init__(self, calibration_data=None):
         self.camera_matrix = None
         self.dist_coeff = None
         self.image_size = None
+
+        if calibration_data is not None:
+            self.load_camera_calibration(calibration_data)
 
     def load_camera_calibration(self, camera_calibration):
         with open(camera_calibration) as camera_calibration_json:
@@ -19,10 +24,10 @@ class CameraModel:
             f = camera_params["Focal Length"]
             c = camera_params["Principal Point"]
             camera_matrix = self._camera_matrix_from_intrinsics(f, c)
-            print("Camera Matrix:\n", camera_matrix)
+            logger.debug("Camera Matrix:\n", camera_matrix)
 
             dist_coeff = np.array(camera_params["Distortion Coefficients"])
-            print("Camera Distortion Coefficients:\n", dist_coeff)
+            logger.debug("Camera Distortion Coefficients:\n", dist_coeff)
 
         self.camera_matrix, self.dist_coeff = camera_matrix, dist_coeff
         return camera_matrix, dist_coeff
@@ -54,8 +59,7 @@ class CameraModel:
             ids_all.append(charuco_ids)
 
         if not self.image_size:
-            logger.error(
-                "Calibration was unsuccessful. Image size not set.")
+            logger.error("Calibration was unsuccessful. Image size not set.")
             return
 
         calibration, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.aruco.calibrateCameraCharuco(
@@ -66,8 +70,8 @@ class CameraModel:
             cameraMatrix=None,
             distCoeffs=None)
 
-        logger.info(f"Camera Matrix:\n{camera_matrix}")
-        logger.info(f"Dist_Coeffs:\n{dist_coeffs}")
+        logger.debug(f"Camera Matrix:\n{camera_matrix}")
+        logger.debug(f"Dist_Coeffs:\n{dist_coeffs}")
 
         self.camera_matrix = camera_matrix
         self.dist_coeff = dist_coeffs[0]

@@ -1,8 +1,11 @@
+import logging
 import cv2
 import numpy as np
 from pathlib import Path
-from hand_eye_calibration import logger
+# from hand_eye_calibration import logger
 
+
+logger = logging.getLogger(__name__)
 
 class ImageLoader:
     def __init__(self, verbose):

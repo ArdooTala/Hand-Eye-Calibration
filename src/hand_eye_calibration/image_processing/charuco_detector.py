@@ -8,10 +8,9 @@ from hand_eye_calibration.image_processing.image_loader import ImageLoader
 
 
 class CharucoDetector(ImageLoader):
-    def __init__(self, charuco_parameters, verbose=False):
+    def __init__(self, charuco_parameters, camera_model=None, verbose=False):
         super().__init__(verbose)
-        self.verbose = verbose
-        self.camera = None
+        self._camera = None
         self.board = None
         self._aruco_dict = None
 
@@ -28,6 +27,9 @@ class CharucoDetector(ImageLoader):
             raise Exception("charuco_parameters not found")
 
         self._load_charuco_board(charuco_parameters)
+
+        if camera_model is not None:
+            self.camera_model = camera_model
 
     def _load_charuco_board(self, charuco_params):
         assert all(x in charuco_params for x in [
@@ -94,13 +96,10 @@ class CharucoDetector(ImageLoader):
 
     @property
     def estimated_poses(self):
-        if self.camera is None:
-            raise Exception("Camera not defined!")
-
         for file, img in self.images:
-            yield file, self._estimate_pose(img, self.camera.camera_matrix, self.camera.dist_coeff)
+            yield file, self._estimate_pose(img)
 
-    def _estimate_pose(self, image, camera_matrix, dist_coeff):
+    def _estimate_pose(self, image):
         if image is None:
             return None
 
@@ -116,15 +115,16 @@ class CharucoDetector(ImageLoader):
             ret, c_corners, c_ids = cv2.aruco.interpolateCornersCharuco(corners, ids, frame, self.board)
             assert ret > 9
 
-            rvec = (0, 0, 0)
-            tvec = (0, 0, 0)
             ret, p_rvec, p_tvec = cv2.aruco.estimatePoseCharucoBoard(
-                c_corners, c_ids, self.board, camera_matrix, dist_coeff, rvec, tvec)
+                c_corners, c_ids,
+                self.board,
+                self.camera_model.camera_matrix, self.camera_model.dist_coeff,
+                np.empty(1), np.empty(1)
+            )
 
             if self.verbose:
-                logger.info('Translation:\n{0}'.format(p_tvec))
-                logger.info('Rotation:\n{0}'.format(p_rvec))
-                logger.info('Distance from cameras:\t{0} m'.format(np.linalg.norm(p_tvec)))
+                logger.debug(f'Charuco Board Estimated Pose:\nTranslation:\n{p_tvec}\nRotation:\n{p_rvec}')
+                logger.info(f'Charuco Board distance from cameras:\t{np.linalg.norm(p_tvec)} m')
 
             if p_rvec is None or p_tvec is None:
                 return None
@@ -132,7 +132,7 @@ class CharucoDetector(ImageLoader):
                 return None
 
         except cv2.error as e:
-            logger.error(e)
+            logger.error(f"Charuco Board Pose Estimation Failed\n{e}")
             return None
 
         if self.verbose:
@@ -140,13 +140,28 @@ class CharucoDetector(ImageLoader):
             try:
                 output = cv2.aruco.drawDetectedMarkers(output, corners)  # , ids)
                 output = cv2.aruco.drawDetectedCornersCharuco(output, c_corners)  # , c_ids)
-                output = cv2.drawFrameAxes(output, camera_matrix, dist_coeff, p_rvec, p_tvec, 0.1)
+                output = cv2.drawFrameAxes(
+                    output,
+                    self.camera_model.camera_matrix, self.camera_model.dist_coeff,
+                    p_rvec, p_tvec,
+                    0.1
+                )
             finally:
                 cv2.imshow("Kir", cv2.resize(output, None, fx=1, fy=1))
                 cv2.waitKey(0)
 
         return p_rvec, p_tvec
 
-    def auto_detect_camera_parameters(self):
-        self.camera = CameraModel()
-        self.camera.auto_detect_camera_from_images(self)
+    @property
+    def camera_model(self):
+        if not self._camera:
+            self._camera = CameraModel()
+            self._camera.auto_detect_camera_from_images(self)
+
+        return self._camera
+
+    @camera_model.setter
+    def camera_model(self, camera):
+        assert isinstance(camera, CameraModel)
+
+        self._camera = camera
