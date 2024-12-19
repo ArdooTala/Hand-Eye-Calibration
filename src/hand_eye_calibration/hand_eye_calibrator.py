@@ -20,7 +20,7 @@ class HandEyeCalibrator:
         self.r_cam2gripper = None
 
     def load_calibration_data(self, image_poses, robot_poses):
-        assert len(robot_poses) == image_poses.images_count
+        assert len(robot_poses) == len(image_poses)
 
         cal_data = []
         for (img_id, cam_pose), rob_pose in zip(image_poses.estimated_poses, robot_poses):

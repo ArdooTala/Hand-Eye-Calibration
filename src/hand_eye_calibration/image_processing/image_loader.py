@@ -13,10 +13,7 @@ class ImageLoader:
         self._image_files = None
         self._images_dir = None
         self._make_image_generator = None
-
-    @property
-    def images_count(self):
-        return len(self._image_files)
+        self._get_image = None
 
     @property
     def image_files(self):
@@ -34,6 +31,7 @@ class ImageLoader:
 
         def _read_images_from_files():
             for img_file in self._image_files:
+                logger.info(f"Reading Image from file > {img_file}")
                 try:
                     img = cv2.imread(str(img_file))
                 except Exception as e:
@@ -44,7 +42,17 @@ class ImageLoader:
 
         self._make_image_generator = _read_images_from_files
 
+        def get_image(i):
+            return self._image_files[i], cv2.imread(str(self._image_files[i]))
+
+        self._get_image = get_image
+
     def load_images(self, images):
         images = list(sorted(images, key=lambda x: x[0]))
         self._make_image_generator = lambda: images
 
+    def __len__(self):
+        return len(self._image_files)
+
+    def __getitem__(self, item):
+        return self._get_image(item)

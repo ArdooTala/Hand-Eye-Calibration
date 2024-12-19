@@ -60,7 +60,8 @@ class CharucoDetector(ImageLoader):
 
     @property
     def detected_markers(self):
-        for file, img in self.images:
+        # for file, img in self.images:
+        for file, img in self:
             logger.info(f"Detecting Markers > {file}")
             yield file, self._detect_marker(img)
 
@@ -88,7 +89,7 @@ class CharucoDetector(ImageLoader):
 
     @property
     def estimated_poses(self):
-        for file, img in self.images:
+        for file, img in self:
             logger.info(f"Estimating Marker Pose > {file}")
             yield file, self._estimate_pose(img)
 
