@@ -4,7 +4,7 @@ from hand_eye_calibration import hand_eye_calibrator
 
 
 # Detect CharucoBoards
-det = charuco_detector.CharucoDetector("data/charuco_board.yaml", verbose=False)
+det = charuco_detector.CharucoDetector("data/charuco_board.yaml", verbose=True)
 det.load_images_from_files("data/images", extension="png")
 
 # images = map(cv2.imread, Path("data/images").glob("*.png"))

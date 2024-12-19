@@ -61,12 +61,8 @@ class CharucoDetector(ImageLoader):
     @property
     def detected_markers(self):
         for file, img in self.images:
-            detected = self._detect_marker(img)
-            if self.verbose and not detected:
-                logger.warning("Not able to detect a charuco board in image: {}".format(file))
-            yield file, detected
-
-        # return (self.get_detected_marker(img) for file, img in self.images if img is not None)
+            logger.info(f"Detecting Markers > {file}")
+            yield file, self._detect_marker(img)
 
     def _detect_marker(self, img):
         if img is None:
@@ -86,17 +82,14 @@ class CharucoDetector(ImageLoader):
             return None
 
         if self.verbose:
-            out = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
-            out = cv2.aruco.drawDetectedMarkers(out, corners)
-            out = cv2.aruco.drawDetectedCornersCharuco(out, charuco_corners, charuco_ids)
-            cv2.imshow('Charuco board', out)
-            cv2.waitKey(0)
+            self._draw_markers(gray, corners, board_corners=charuco_corners)
 
         return charuco_corners, charuco_ids
 
     @property
     def estimated_poses(self):
         for file, img in self.images:
+            logger.info(f"Estimating Marker Pose > {file}")
             yield file, self._estimate_pose(img)
 
     def _estimate_pose(self, image):
@@ -122,9 +115,8 @@ class CharucoDetector(ImageLoader):
                 np.empty(1), np.empty(1)
             )
 
-            if self.verbose:
-                logger.debug(f'Charuco Board Estimated Pose:\nTranslation:\n{p_tvec}\nRotation:\n{p_rvec}')
-                logger.info(f'Charuco Board distance from cameras:\t{np.linalg.norm(p_tvec)} m')
+            logger.debug(f'Charuco Board Estimated Pose:\nTranslation:\n{p_tvec}\nRotation:\n{p_rvec}')
+            logger.debug(f'Charuco Board distance from cameras:\t{np.linalg.norm(p_tvec)} m')
 
             if p_rvec is None or p_tvec is None:
                 return None
@@ -136,25 +128,14 @@ class CharucoDetector(ImageLoader):
             return None
 
         if self.verbose:
-            output = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
-            try:
-                output = cv2.aruco.drawDetectedMarkers(output, corners)  # , ids)
-                output = cv2.aruco.drawDetectedCornersCharuco(output, c_corners)  # , c_ids)
-                output = cv2.drawFrameAxes(
-                    output,
-                    self.camera_model.camera_matrix, self.camera_model.dist_coeff,
-                    p_rvec, p_tvec,
-                    0.1
-                )
-            finally:
-                cv2.imshow("Kir", cv2.resize(output, None, fx=1, fy=1))
-                cv2.waitKey(0)
+            self._draw_markers(frame, corners, board_corners=c_corners, frame_transform=(p_rvec, p_tvec))
 
         return p_rvec, p_tvec
 
     @property
     def camera_model(self):
         if not self._camera:
+            logger.info(f"Camera Model not set. Estimating Camera from images")
             self._camera = CameraModel()
             self._camera.auto_detect_camera_from_images(self)
 
@@ -163,5 +144,23 @@ class CharucoDetector(ImageLoader):
     @camera_model.setter
     def camera_model(self, camera):
         assert isinstance(camera, CameraModel)
-
         self._camera = camera
+
+    def _draw_markers(self, frame, marker_corners, board_corners=None, ids=None, frame_transform=None):
+        output = frame.copy()
+        output = cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
+        output = cv2.aruco.drawDetectedMarkers(output, marker_corners, ids)
+
+        if board_corners is not None:
+            output = cv2.aruco.drawDetectedCornersCharuco(output, board_corners)  # , c_ids)
+
+        if frame_transform is not None:
+            output = cv2.drawFrameAxes(
+                output,
+                self.camera_model.camera_matrix, self.camera_model.dist_coeff,
+                *frame_transform,
+                0.1
+            )
+
+        cv2.imshow("Detected Markers", cv2.resize(output, None, fx=1, fy=1))
+        cv2.waitKey(0)
