@@ -4,9 +4,9 @@ from datetime import datetime
 from hand_eye_calibration import logger
 import cv2
 import numpy as np
-from scipy.spatial.transform import Rotation
 
 from hand_eye_calibration.robot_model.base_robot_model import RobotModel
+from hand_eye_calibration._transformations import create_transform
 
 
 class HandEyeCalibrator:
@@ -73,3 +73,20 @@ class HandEyeCalibrator:
         if isinstance(self.robot_loader, RobotModel):
             r_cam = self.robot_loader.matrix_to_rotation(self.r_cam2gripper)
             return r_cam, self.t_cam2gripper
+
+    def calculate_calibration_error(self):
+        board_poses = []
+        tcp = create_transform(self.r_cam2gripper, self.t_cam2gripper)
+        for (_, cam_pose), rob_pose in zip(self.image_loader.estimated_poses, self.robot_loader):
+            c_r = cv2.Rodrigues(cam_pose[0])[0]
+            cam2board = create_transform(c_r, cam_pose[1])
+            base2flange = create_transform(*rob_pose)
+            base2cam = base2flange @ tcp
+            base2board = base2cam @ cam2board
+            board_poses.append([base2board[:3, 3]])
+            logger.debug(base2board[:3, 3])
+
+        avg = np.average(board_poses, axis=0)
+        std = np.std(board_poses, axis=0)
+
+        return avg, std
