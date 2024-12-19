@@ -8,7 +8,7 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 class ImageLoader:
-    def __init__(self, verbose):
+    def __init__(self, verbose=False):
         self.verbose = verbose
         self._image_files = None
         self._images_dir = None
@@ -43,7 +43,9 @@ class ImageLoader:
         self._make_image_generator = _read_images_from_files
 
         def get_image(i):
-            return self._image_files[i], cv2.imread(str(self._image_files[i]))
+            img_file = self._image_files[i]
+            logger.info(f"Reading Image from file > {img_file}")
+            return img_file, cv2.imread(str(img_file))
 
         self._get_image = get_image
 
