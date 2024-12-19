@@ -1,15 +1,16 @@
 from hand_eye_calibration.image_processing import charuco_detector
+from hand_eye_calibration.image_processing.image_loader import ImageLoader
 from hand_eye_calibration.robot_model import ur_robot
 from hand_eye_calibration import hand_eye_calibrator
 
 
-# Detect CharucoBoards
-det = charuco_detector.CharucoDetector("data/charuco_board.yaml", verbose=True)
-det.load_images_from_files("data/images", extension="png")
-
+images = ImageLoader()
+images.load_images_from_files("data/images", extension="png")
 # images = map(cv2.imread, Path("data/images").glob("*.png"))
 # det.load_images(enumerate(images))
 
+# Detect CharucoBoards
+det = charuco_detector.CharucoDetector(images, "data/charuco_board.yaml", verbose=False)
 # det.camera_model.write_camera_calibration()   # Write the Camera Calibration Result
 
 # Extract Robot Poses

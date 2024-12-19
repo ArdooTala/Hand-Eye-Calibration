@@ -7,9 +7,10 @@ from hand_eye_calibration.image_processing.camera_model import CameraModel
 from hand_eye_calibration.image_processing.image_loader import ImageLoader
 
 
-class CharucoDetector(ImageLoader):
-    def __init__(self, charuco_parameters, camera_model=None, verbose=False):
-        super().__init__(verbose)
+class CharucoDetector:
+    def __init__(self, images, charuco_parameters, camera_model=None, verbose=False):
+        self.verbose = verbose
+        self.images = images
         self._camera = None
         self.board = None
         self._aruco_dict = None
@@ -61,7 +62,7 @@ class CharucoDetector(ImageLoader):
     @property
     def detected_markers(self):
         # for file, img in self.images:
-        for file, img in self:
+        for file, img in self.images:
             logger.info(f"Detecting Markers > {file}")
             yield file, self._detect_marker(img)
 
@@ -71,44 +72,31 @@ class CharucoDetector(ImageLoader):
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         corners, ids, _ = cv2.aruco.detectMarkers(gray, self._aruco_dict)
-        response, charuco_corners, charuco_ids = cv2.aruco.interpolateCornersCharuco(
+        ret, charuco_corners, charuco_ids = cv2.aruco.interpolateCornersCharuco(
             markerCorners=corners,
             markerIds=ids,
             image=gray,
             board=self.board,
         )
 
-        if response < 10:
-            logger.warning(f"Not able to detect enough markers in the image ({response}/10)")
+        if ret < 10:
+            logger.warning(f"Not able to detect enough markers in the image ({ret}/10)")
             return None
 
         if self.verbose:
-            self._draw_markers(gray, corners, board_corners=charuco_corners)
+            self._draw_markers(gray, marker_corners=corners, board_corners=charuco_corners)
 
         return charuco_corners, charuco_ids
 
     @property
     def estimated_poses(self):
-        for file, img in self:
+        for file, img in self.images:
             logger.info(f"Estimating Marker Pose > {file}")
             yield file, self._estimate_pose(img)
 
     def _estimate_pose(self, image):
-        if image is None:
-            return None
-
-        frame = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        corners, ids, rejected_points = cv2.aruco.detectMarkers(frame, self._aruco_dict)
-
-        if corners is None or ids is None:
-            return None
-        if len(corners) != len(ids) or len(corners) == 0:
-            return None
-
         try:
-            ret, c_corners, c_ids = cv2.aruco.interpolateCornersCharuco(corners, ids, frame, self.board)
-            assert ret > 9
-
+            c_corners, c_ids = self._detect_marker(image)
             ret, p_rvec, p_tvec = cv2.aruco.estimatePoseCharucoBoard(
                 c_corners, c_ids,
                 self.board,
@@ -116,20 +104,23 @@ class CharucoDetector(ImageLoader):
                 np.empty(1), np.empty(1)
             )
 
-            logger.debug(f'Charuco Board Estimated Pose:\nTranslation:\n{p_tvec}\nRotation:\n{p_rvec}')
-            logger.debug(f'Charuco Board distance from cameras:\t{np.linalg.norm(p_tvec)} m')
-
             if p_rvec is None or p_tvec is None:
                 return None
             if np.isnan(p_rvec).any() or np.isnan(p_tvec).any():
                 return None
+
+            logger.debug(f'Charuco Board Estimated Pose:\nTranslation:\n{p_tvec}\nRotation:\n{p_rvec}')
+            logger.debug(f'Charuco Board distance from cameras:\t{np.linalg.norm(p_tvec)} m')
 
         except cv2.error as e:
             logger.error(f"Charuco Board Pose Estimation Failed\n{e}")
             return None
 
         if self.verbose:
-            self._draw_markers(frame, corners, board_corners=c_corners, frame_transform=(p_rvec, p_tvec))
+            self._draw_markers(
+                cv2.cvtColor(image, cv2.COLOR_BGR2GRAY),
+                board_corners=c_corners, frame_transform=(p_rvec, p_tvec)
+            )
 
         return p_rvec, p_tvec
 
@@ -147,10 +138,13 @@ class CharucoDetector(ImageLoader):
         assert isinstance(camera, CameraModel)
         self._camera = camera
 
-    def _draw_markers(self, frame, marker_corners, board_corners=None, ids=None, frame_transform=None):
+    def _draw_markers(self, frame, marker_corners=None, board_corners=None, ids=None, frame_transform=None):
         output = frame.copy()
-        output = cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
-        output = cv2.aruco.drawDetectedMarkers(output, marker_corners, ids)
+        if len(output.shape) == 2:
+            output = cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
+
+        if marker_corners is not None:
+            output = cv2.aruco.drawDetectedMarkers(output, marker_corners, ids)
 
         if board_corners is not None:
             output = cv2.aruco.drawDetectedCornersCharuco(output, board_corners)  # , c_ids)
@@ -165,3 +159,7 @@ class CharucoDetector(ImageLoader):
 
         cv2.imshow("Detected Markers", cv2.resize(output, None, fx=1, fy=1))
         cv2.waitKey(0)
+        return output
+
+    def __len__(self):
+        return len(self.images)
