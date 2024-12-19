@@ -33,18 +33,20 @@ class CameraModel:
         return camera_matrix, dist_coeff
 
     def auto_detect_camera_from_images(self, detector):
-        self._set_image_size(detector.images)
+        self._set_image_size(detector.images[0][1])
         self._calibrate_camera(detector.detected_markers, detector.board)
 
-    def _set_image_size(self, images):
-        # Set Image Size
-        for f, image in images:
-            if not self.image_size:
-                self.image_size = image.shape[1::-1]
-                logger.info(f"Image Resolution: {self.image_size}")
-
-            elif self.image_size != image.shape[1::-1]:
-                raise Exception("Images are not of the same size")
+    def _set_image_size(self, image):
+        if not self.image_size:
+            self.image_size = image.shape[1::-1]
+            logger.info(f"Image Resolution: {self.image_size}")
+        # for f, image in images:
+        #     if not self.image_size:
+        #         self.image_size = image.shape[1::-1]
+        #         logger.info(f"Image Resolution: {self.image_size}")
+        #
+        #     elif self.image_size != image.shape[1::-1]:
+        #         raise Exception("Images are not of the same size")
 
     def _calibrate_camera(self, detected_markers, board):
         corners_all = []
